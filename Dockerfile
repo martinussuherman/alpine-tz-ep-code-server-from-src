@@ -40,18 +40,18 @@ RUN apk --no-cache --update add \
     python3 \
     yarn
 
-RUN mkdir ~/src \
-    cd ~/src \
-    git clone https://github.com/cdr/code-server.git \
+RUN mkdir ~/src && \
+    cd ~/src && \
+    git clone https://github.com/cdr/code-server.git && \
     cd ~/src/code-server
 
 # Build package
-RUN yarn \
-    yarn vscode \
-    yarn build \
-    yarn build:vscode \
-    yarn release \
-    cd release \
+RUN yarn && \
+    yarn vscode && \
+    yarn build && \
+    yarn build:vscode && \
+    yarn release && \
+    cd release && \
     yarn --production
 
 
