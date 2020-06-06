@@ -26,8 +26,10 @@ ENV LABEL_MAINTAINER="Martinus Suherman" \
 
 # Multi-stage builds
 
-# Build tools and deps
+# Build dependencies
 RUN apk --no-cache --update add \
+    bash \
+    g++ \
     gcc \
     git \
     jq \
@@ -36,23 +38,30 @@ RUN apk --no-cache --update add \
     libsecret-dev \
     make \
     nodejs-current \
+    npm \
     pkgconf \
     python3 \
     yarn
 
-RUN mkdir ~/src && \
+# Nodejs dependencies
+RUN npm install -g node-gyp
+
+RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
+    mkdir ~/src && \
     cd ~/src && \
-    git clone https://github.com/cdr/code-server.git && \
-    cd ~/src/code-server
+    git clone https://github.com/cdr/code-server.git
+
+WORKDIR /root/src/code-server
 
 # Build package
-RUN yarn && \
-    yarn vscode && \
-    yarn build && \
-    yarn build:vscode && \
-    yarn release && \
-    cd release && \
-    yarn --production
+RUN yarn 
+RUN yarn vscode
+RUN yarn build
+# RUN yarn build:vscode
+# RUN yarn release
+# RUN cd release && \
+#    yarn --production
+
 
 
 # Build result image
