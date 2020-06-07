@@ -39,7 +39,10 @@ RUN yarn && \
     cd release && \
     yarn --production
 RUN yarn release:standalone && \
-    yarn test:standalone-release
+    yarn test:standalone-release && \
+    rm /root/src/code-server/release-standalone/node && \
+    rm /root/src/code-server/release-standalone/code-server && \
+    rm /root/src/code-server/release-standalone/lib/node
 
 
 # Build result image
@@ -72,15 +75,11 @@ FROM martinussuherman/alpine-tz-ep
 RUN apk --no-cache --update add \
     nodejs-current
 
-COPY --from=builder /root/src/code-server/code-server-linux-amd64.tar.gz /root/
+COPY --from=builder /root/src/code-server/release-standalone /usr/lib/code-server
+COPY code-server /usr/bin/
 
-# TODO : create script to run code server via nodejs 
-RUN mkdir -p /root/.local/lib /root/.local/bin && \
-    tar x -f /root/code-server-linux-amd64.tar.gz -C /root/.local/lib -xz && \
-    rm /root/code-server-linux-amd64.tar.gz && \
-    mv /root/.local/lib/release-standalone /root/.local/lib/code-server-3.4.1 && \
-    ln -s /root/.local/lib/code-server-3.4.1/bin/code-server /root/.local/bin/code-server && \
-    PATH="/root/.local/bin:$PATH"
+RUN chmod 755 /usr/bin/code-server && \
+    sed -i 's/"$ROOT\/lib\/node"/node/g'  /usr/lib/code-server/bin/code-server
 
 ENTRYPOINT ["/entrypoint_su-exec.sh", "code-server"]
 CMD ["--bind-addr 0.0.0.0:8080"]
