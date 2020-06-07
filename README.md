@@ -1,4 +1,4 @@
-# alpine-tz-ep-code-server
+# alpine-tz-ep-code-server-from-src
 code-server build from source, based on Alpine linux
 
 This is for learning to build code-server from source.

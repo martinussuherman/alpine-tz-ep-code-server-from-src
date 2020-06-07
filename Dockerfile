@@ -48,10 +48,10 @@ RUN yarn release:standalone && \
 # Build result image
 ENV LABEL_MAINTAINER="Martinus Suherman" \
     LABEL_VENDOR="martinussuherman" \
-    LABEL_IMAGE_NAME="martinussuherman/alpine-tz-ep-code-server" \
-    LABEL_URL="https://hub.docker.com/r/martinussuherman/alpine-tz-ep-code-server/" \
-    LABEL_VCS_URL="https://github.com/martinussuherman/alpine-tz-ep-code-server" \
-    LABEL_DESCRIPTION="Code-server based on Alpine Linux, build from source." \
+    LABEL_IMAGE_NAME="martinussuherman/alpine-tz-ep-code-server-from-src" \
+    LABEL_URL="https://hub.docker.com/r/martinussuherman/alpine-tz-ep-code-server-from-src/" \
+    LABEL_VCS_URL="https://github.com/martinussuherman/alpine-tz-ep-code-server-from-src" \
+    LABEL_DESCRIPTION="Code-server based on Alpine Linux, built from source." \
     LABEL_LICENSE="GPL-3.0" \
     # container/su-exec UID \
     EUID=1001 \
