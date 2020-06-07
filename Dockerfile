@@ -1,5 +1,48 @@
 FROM alpine AS builder
 
+# Multi-stage builds
+
+# Build dependencies
+RUN apk --no-cache --update add \
+    bash \
+    g++ \
+    gcc \
+    git \
+    jq \
+    libx11-dev \
+    libxkbfile-dev \
+    libsecret-dev \
+    make \
+    nodejs-current \
+    npm \
+    pkgconf \
+    python3 \
+    rsync \
+    yarn
+
+# Nodejs dependencies
+RUN npm install -g node-gyp
+
+RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
+    mkdir ~/src && \
+    cd ~/src && \
+    git clone https://github.com/cdr/code-server.git
+
+WORKDIR /root/src/code-server
+
+# Build package
+RUN yarn && \
+    yarn vscode && \
+    yarn build && \
+    yarn build:vscode && \
+    yarn release && \
+    cd release && \
+    yarn --production
+RUN yarn release:standalone && \
+    yarn test:standalone-release
+
+
+# Build result image
 ENV LABEL_MAINTAINER="Martinus Suherman" \
     LABEL_VENDOR="martinussuherman" \
     LABEL_IMAGE_NAME="martinussuherman/alpine-tz-ep-code-server" \
@@ -24,52 +67,23 @@ ENV LABEL_MAINTAINER="Martinus Suherman" \
     # container timezone \
     TZ=UTC 
 
-# Multi-stage builds
-
-# Build dependencies
-RUN apk --no-cache --update add \
-    bash \
-    g++ \
-    gcc \
-    git \
-    jq \
-    libx11-dev \
-    libxkbfile-dev \
-    libsecret-dev \
-    make \
-    nodejs-current \
-    npm \
-    pkgconf \
-    python3 \
-    yarn
-
-# Nodejs dependencies
-RUN npm install -g node-gyp
-
-RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
-    mkdir ~/src && \
-    cd ~/src && \
-    git clone https://github.com/cdr/code-server.git
-
-WORKDIR /root/src/code-server
-
-# Build package
-RUN yarn 
-RUN yarn vscode
-RUN yarn build
-# RUN yarn build:vscode
-# RUN yarn release
-# RUN cd release && \
-#    yarn --production
-
-
-
-# Build result image
 FROM martinussuherman/alpine-tz-ep
 
-WORKDIR /root/
+RUN apk --no-cache --update add \
+    nodejs-current
 
-COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
+COPY --from=builder /root/src/code-server/code-server-linux-amd64.tar.gz /root/
+
+# TODO : create script to run code server via nodejs 
+RUN mkdir -p /root/.local/lib /root/.local/bin && \
+    tar x -f /root/code-server-linux-amd64.tar.gz -C /root/.local/lib -xz && \
+    rm /root/code-server-linux-amd64.tar.gz && \
+    mv /root/.local/lib/release-standalone /root/.local/lib/code-server-3.4.1 && \
+    ln -s /root/.local/lib/code-server-3.4.1/bin/code-server /root/.local/bin/code-server && \
+    PATH="/root/.local/bin:$PATH"
+
+ENTRYPOINT ["/entrypoint_su-exec.sh", "code-server"]
+CMD ["--bind-addr 0.0.0.0:8080"]
 
 #
 ARG LABEL_VERSION="latest"
