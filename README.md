@@ -1,28 +1,17 @@
 # alpine-tz-ep-code-server
-code-server build from source on alpine linux
+code-server build from source, based on Alpine linux
 
+This is for learning to build code-server from source.
 
-Vscode
+Lessons learned:
+1. It's possible to use python3 to make VS Code and code-server, no errors, only warning.
+2. Building VS Code is resource intensive:
+- Node peak memory usage is around 9 GB
+- It takes around 10 min (probably more, didn't really time it) to build the builder image only.
+- The resulting builder image is over 4 GB in size. (I haven't optimized the docker build process, though)
+3. The resulting code-server bundled nodejs can't be executed (corrupt maybe?)
+
+References:
 https://github.com/Microsoft/vscode/wiki/How-to-Contribute#prerequisites  
-Git
-Node.JS, x64, version >= 10.x, <= 12.x -> override below
-Yarn 
-Python3, ref: https://github.com/microsoft/vscode/issues/95176
-
-A C/C++ compiler tool chain for your platform: 
-
-make
-pkg-config
-GCC
-native-keymap needs libx11-dev and libxkbfile-dev.
-keytar needs libsecret-1-dev.
-
-
-code-server
+https://github.com/microsoft/vscode/issues/95176
 https://github.com/cdr/code-server/blob/master/doc/CONTRIBUTING.md
-Differences:
-
-We require a minimum of node v12 but later versions should work.
-We use fnpm to build .deb and .rpm packages. -> not needed
-We use jq to build code-server releases.
-The CI container is a useful reference for all our dependencies.
